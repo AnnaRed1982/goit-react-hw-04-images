@@ -19,26 +19,26 @@ export const App = () => {
     setStatus('pending');
 
     const fetchResponse = async () => {
-      const response = await fetchSearchImage(serchRequest, page);
+      try {
+        const response = await fetchSearchImage(serchRequest, page);
 
-      if (response.length === 0) {
-        setStatus(null);
-        return alert(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      }
-      if (response.length > 0) {
-        setImages(prevImages => [...prevImages, ...response]);
-        setStatus('resolved');
+        if (response.length === 0) {
+          setStatus(null);
+          return alert(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
+        }
+        if (response.length > 0) {
+          setImages(prevImages => [...prevImages, ...response]);
+          setStatus('resolved');
+        }
+      } catch (error) {
+        setStatus('rejected');
+        setError(error.message);
       }
     };
 
-    try {
-      fetchResponse();
-    } catch (error) {
-      setStatus('rejected');
-      setError(error);
-    }
+    fetchResponse();
   }, [serchRequest, page]);
 
   const loadMore = () => {
@@ -55,7 +55,12 @@ export const App = () => {
     return <Loader />;
   }
   if (status === 'rejected') {
-    return <h2>Whoops, something went wrong: {error.message}</h2>;
+    return (
+      <>
+        <Searchbar onSubmit={handleFormSubmit} />
+        <h2>Whoops, something went wrong: {error}</h2>
+      </>
+    );
   }
   if (status === 'resolved') {
     return (
@@ -72,4 +77,3 @@ export const App = () => {
     </div>
   );
 };
-
